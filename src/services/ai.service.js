@@ -84,21 +84,52 @@ ${jobDescription}
   return validatedResult;
 }
 
-async function generatePdfFromHtml(htmlContent){
-  const browser=await puppeteer.launch()
-  const page=await browser.newPage()
+async function generatePdfFromHtml(htmlContent) {
 
-  await page.setContent(htmlContent,{waitUntil:"networkidle0"})
+    if (!htmlContent || typeof htmlContent !== "string") {
+        throw new Error("Invalid HTML content received")
+    }
 
-  const pdfBuffer=await page.pdf({format:"A4",margin:{top:"20mm",
-    bottom:"20mm",
-    left:"15mm",
-    right:"15mm"
-  }})
+    console.log("Generating PDF from HTML...")
+    console.log("HTML length:", htmlContent.length)
 
-  await browser.close()
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox"
+        ]
+    })
 
-  return pdfBuffer
+    try {
+
+        const page = await browser.newPage()
+
+        await page.setContent(htmlContent, {
+            waitUntil: "networkidle0"
+        })
+
+        const pdfBuffer = await page.pdf({
+            format: "A4",
+            printBackground: true,
+            margin: {
+                top: "20mm",
+                bottom: "20mm",
+                left: "15mm",
+                right: "15mm"
+            }
+        })
+
+        console.log("PDF generated successfully")
+        console.log("PDF size:", pdfBuffer.length)
+
+        return pdfBuffer
+
+    } finally {
+
+        await browser.close()
+
+    }
 }
 
 async function generateResumePdf({resume,selfDescription,jobDescription}){
