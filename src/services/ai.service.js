@@ -329,12 +329,19 @@ Requirements:
 - Do not use external CSS files.
 - Do not use JavaScript.
 - Keep the design simple and professional.
+
+IMPORTANT:
+Return ONLY valid JSON.
+
+The JSON must have exactly one property:
+{
+    "html": "complete HTML resume"
+}
+
+Do not return markdown.
+Do not use code fences.
+Do not add any explanation outside the JSON.
 `
-
-
-    const schema = z.toJSONSchema(resumePdfSchema)
-
-    delete schema.$schema
 
 
     const response =
@@ -346,7 +353,7 @@ Requirements:
                 {
                     role: "system",
                     content:
-                        "You are an expert professional resume writer who creates ATS-friendly resumes tailored to software engineering roles."
+                        "You are an expert professional resume writer who creates ATS-friendly resumes tailored to software engineering roles. Always return the requested output as valid JSON."
                 },
                 {
                     role: "user",
@@ -355,13 +362,7 @@ Requirements:
             ],
 
             response_format: {
-                type: "json_schema",
-
-                json_schema: {
-                    name: "resume_pdf",
-                    strict: true,
-                    schema: schema
-                }
+                type: "json_object"
             },
 
             temperature: 0.2
@@ -375,6 +376,9 @@ Requirements:
     if (!content) {
         throw new Error("Groq returned an empty resume response")
     }
+
+
+    console.log("Groq resume response received")
 
 
     const jsonContent =
