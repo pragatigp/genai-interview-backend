@@ -10,14 +10,14 @@
     "start": "node server.js",
     "dev": "npx nodemon server.js",
     "postinstall": "npx puppeteer browsers install chrome"
-},
+  },
   "dependencies": {
-    "@google/genai": "^2.24.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^18.0.1",
     "express": "^5.2.1",
+    "groq-sdk": "^1.6.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.1",
     "multer": "^2.4.0",
