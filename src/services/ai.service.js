@@ -312,7 +312,9 @@ async function generateResumePdf({
 }) {
 
     const prompt = `
-Generate a professional ATS-friendly resume for the candidate.
+You are an expert professional resume writer.
+
+Create a professional ATS-friendly resume for the candidate.
 
 Candidate Resume:
 ${resume}
@@ -325,61 +327,62 @@ ${jobDescription}
 
 Requirements:
 
-- Tailor the resume to the given job description.
-- Highlight relevant technical skills.
-- Highlight relevant projects and experience.
+- Tailor the resume to the target job description.
+- Highlight only skills, projects, education, and experience actually present in the candidate information.
+- Do NOT invent companies.
+- Do NOT invent degrees.
+- Do NOT invent jobs.
+- Do NOT invent projects.
+- Do NOT invent certifications.
+- Do NOT invent skills.
+- Do NOT invent achievements.
 - Use professional human-written language.
-- Do not make the resume sound AI-generated.
-- Do not invent companies, degrees, jobs, projects, certifications, skills, or achievements.
-- Only use information provided in the candidate's resume and self-description.
-- Make the resume ATS friendly.
+- Make the resume ATS-friendly.
 - Use clear headings.
 - Use bullet points where appropriate.
 - Keep the resume concise.
-- Ideally keep it within 1-2 pages.
-- Generate complete HTML.
-- Include CSS inside the HTML itself.
-- Do not use external CSS files.
+- Keep it within 1-2 pages.
+- Generate a complete HTML document.
+- Include CSS inside the HTML.
+- Do not use external CSS.
 - Do not use JavaScript.
-- Keep the design simple and professional.
 
 IMPORTANT:
 Return ONLY valid JSON.
 
 The JSON must have exactly one property:
+
 {
-    "html": "complete HTML resume"
+    "html": "COMPLETE HTML RESUME HERE"
 }
 
-Do not return markdown.
+Do not use markdown.
 Do not use code fences.
-Do not add any explanation outside the JSON.
+Do not write anything outside the JSON.
 `
 
 
-    const response =
-        await ai.chat.completions.create({
+    const response = await ai.chat.completions.create({
 
-            model: "openai/gpt-oss-20b",
+        model: "openai/gpt-oss-20b",
 
-            messages: [
-                {
-                    role: "system",
-                    content:
-                        "You are an expert professional resume writer who creates ATS-friendly resumes tailored to software engineering roles. Always return the requested output as valid JSON."
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
+        messages: [
+            {
+                role: "user",
+                content: prompt
+            }
+        ],
 
-            response_format: {
-                type: "json_object"
-            },
+        response_format: {
+            type: "json_object"
+        },
 
-            temperature: 0.2
-        })
+        temperature: 0.2,
+
+        max_completion_tokens: 6000,
+
+        reasoning_effort: "low"
+    })
 
 
     const content =
@@ -392,10 +395,25 @@ Do not add any explanation outside the JSON.
 
 
     console.log("Groq resume response received")
+    console.log("Resume response length:", content.length)
 
 
-    const jsonContent =
-        JSON.parse(content)
+    let jsonContent
+
+    try {
+
+        jsonContent =
+            JSON.parse(content)
+
+    } catch (error) {
+
+        console.error("Invalid JSON returned by Groq:")
+        console.error(content)
+
+        throw new Error(
+            "Groq returned invalid JSON while generating resume"
+        )
+    }
 
 
     const validatedContent =
@@ -408,8 +426,6 @@ Do not add any explanation outside the JSON.
 
     return pdfBuffer
 }
-
-
 // ========================================
 // EXPORT
 // ========================================
