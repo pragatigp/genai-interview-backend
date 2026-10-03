@@ -151,12 +151,23 @@ ${selfDescription}
 
 Job Description:
 ${jobDescription}
+
+IMPORTANT OUTPUT REQUIREMENTS:
+
+- Generate exactly 5 technical questions.
+- Generate exactly 5 behavioral questions.
+- Keep each intention concise and under 20 words.
+- Keep each answer between 50 and 100 words.
+- Generate relevant skill gaps based only on the candidate's actual information.
+- Generate a 7-day preparation plan.
+- Keep preparation tasks concise.
+- Do not include unnecessary explanations.
+- Do not invent experience, skills, projects, companies, certifications, or achievements.
 `
 
 
     const schema = z.toJSONSchema(interviewReportSchema)
 
-    // Groq structured outputs does not need this metadata
     delete schema.$schema
 
 
@@ -186,7 +197,9 @@ ${jobDescription}
             }
         },
 
-        temperature: 0.2
+        temperature: 0.2,
+
+        max_completion_tokens: 8000
     })
 
 
@@ -199,7 +212,8 @@ ${jobDescription}
     }
 
 
-    const result = JSON.parse(content)
+    const result =
+        JSON.parse(content)
 
 
     const validatedResult =
@@ -208,7 +222,6 @@ ${jobDescription}
 
     return validatedResult
 }
-
 
 // ========================================
 // GENERATE PDF FROM HTML
